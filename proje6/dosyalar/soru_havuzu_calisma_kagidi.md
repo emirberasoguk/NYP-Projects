@@ -1,18 +1,159 @@
----
+📝 Java OOP: Soru Odaklı Detaylı Çalışma Notları
+1. BÖLÜM: Interface (Arayüz) ve Abstract Class (Soyut Sınıf)
+(Kapsanan Sorular: 1, 2, 3, 4, 6, 10, 11)
+Bu bölüm sınavda kesin çıkar. Hocalar "Neden Interface yerine Abstract Class kullanayım?" sorusuna bayılır.
+[Soru 1 & 3] Interface vs Abstract Class Farkı ve Seçimi:
+ * Abstract Class (Soyut Sınıf): "Bu nesne nedir?" sorusuna cevap verir. Ortak özellikleri ve bazı ortak kodları barındırır.
+   * Örnek: Kamyon ve Motorsiklet. İkisi de Aractır (extends Arac). calistir() metodu ikisinde de aynıdır (kontağı çevir), bu yüzden Abstract class içinde gövdesi yazılabilir.
+ * Interface (Arayüz): "Bu nesne ne yapabilir?" sorusuna cevap verir. Bir yetenek setidir.
+   * Örnek: Kamyon ve Helikopter. İkisi alakasız ama ikisi de Tasiyabilir (implements Tasiyabilir).
+[Soru 2] Interface Değişkenleri Neden public static finaldır?
+Interface bir "sözleşme"dir, durum (state) tutmaz. Durum tutmadığı için nesneye özgü değişkeni olamaz. Bu yüzden değişkenler:
+ * Public: Her yerden erişilsin diye.
+ * Static: Nesne üretilmeden sınıf adıyla erişilsin diye.
+ * Final: Değeri değiştirilemesin (sabit olsun) diye.
+[Soru 4 & 10] Çoklu Kalıtım ve Diamond Problemi:
+Java'da bir sınıf sadece 1 sınıfı extend edebilir ama sonsuz sayıda interface'i implement edebilir.
+ * Diamond Problemi: Eğer Java'da class A extends B, C olsaydı ve hem B'de hem C'de kos() metodu olsaydı, A hangisini çalıştıracağını bilemezdi.
+ * Çözüm: Interface'lerin içi boştur (Java 8 öncesi). Bu yüzden çakışma olsa bile gövde olmadığı için sorun çıkmaz; gövdeyi A sınıfı yazmak zorundadır.
+Kodla Görselleştirme:
+// SENARYO: Ödeme Sistemleri (Soru 3 Cevabı)
 
-# 📚 JAVA ve OOP İLERİ SEVİYE ÇALIŞMA NOTLARI
+// Interface: Yetenek belirtir. Her ödeme yöntemi "odemeYap"mak zorundadır.
+interface Odenebilir {
+    // public static final double KOMISYON = 0.05; (Varsayılan olarak sabittir)
+    void odemeYap(double miktar);
+}
 
-## 1. SOYUTLAMA (ABSTRACTION) VE ARAYÜZLER (INTERFACES)
+// Abstract Class: Ortak kodları taşır.
+// Her banka sistemi "log tutmalı"dır, bu kod ortaktır, tekrar yazmaya gerek yok.
+abstract class BankaSistemi implements Odenebilir {
+    String bankaAdi;
 
-Bu bölüm; **Abstract Class** ve **Interface** arasındaki ince mimari farkları soran 1-13 arası soruları detaylandırır.
+    // Constructor olabilir (Abstract class'ta constructor olur! - Soru 11 ters köşe)
+    public BankaSistemi(String bankaAdi) {
+        this.bankaAdi = bankaAdi;
+    }
 
-### 🎯 Interface (Arayüz) Derinlemesine Analiz
-Kaynak: [1], [2], [3], [4]
+    // Ortak Metot (Concrete)
+    public void logTut(String islem) {
+        System.out.println(bankaAdi + " logladı: " + islem);
+    }
+    
+    // Abstract Metot: Bunu her banka kendine göre doldurmak zorunda
+    abstract void guvenlikKontrolu();
+}
 
-*   **Tanım:** Bir sınıfın *ne yapabileceğini* (capabilities) belirten, sadece metod imzalarını içeren bir şablondur. "Is-A" (nedir) değil, "Can-Do" (ne yapabilir) ilişkisidir.
-*   **Değişkenlerin Durumu (Soru 2):** Interface içindeki tüm değişkenler varsayılan olarak **`public static final`**'dır.
-    *   **Neden?** Interface'ler birer "davranış sözleşmesi"dir, durum (state) tutmazlar. Bu yüzden değişkenler ancak "evrensel sabitler" olabilir (Örn: `Math.PI` gibi).
-*   **Çoklu Kalıtım Alternatifi (Soru 4, 7):** Java'da bir sınıfın birden fazla babası (superclass) olamaz (Diamond Problemi yüzünden). Ancak bir sınıf birden fazla Interface'i `implements` edebilir. Bu sayede "Çoklu Kalıtım" yeteneği simüle edilir.
+// Somut Sınıf
+class ZiraatBankasi extends BankaSistemi {
+    public ZiraatBankasi() {
+        super("Ziraat"); // Üst sınıfın constructor'ını çağırmak şart
+    }
+
+    @Override
+    public void odemeYap(double miktar) {
+        guvenlikKontrolu(); // Önce soyut metodu çağırdık
+        System.out.println(miktar + " TL ödendi.");
+        logTut("Ödeme Başarılı"); // Ortak metodu kullandık
+    }
+
+    @Override
+    void guvenlikKontrolu() {
+        System.out.println("SMS şifresi doğrulandı.");
+    }
+}
+
+2. BÖLÜM: Kalıtım (Inheritance) ve Constructor Zinciri
+(Kapsanan Sorular: 18, 20, 21, 23, 24, 26)
+[Soru 18] Alt sınıf, üst sınıfın constructor'ını nasıl çağırır?
+Alt sınıfın (subclass) bir nesnesi oluşturulduğunda, ÖNCE üst sınıfın (superclass) constructor'ı çalışmalıdır. Çünkü çocuk doğmadan ebeveyn var olmalıdır.
+ * Java, her constructor'ın ilk satırına gizlice super(); kodunu ekler.
+[Soru 20] Override (Ezme) Nedir ve Ne Zaman Yapılır?
+Üst sınıftan miras alınan bir metodun işlevi alt sınıfa uymuyorsa yapılır.
+ * Örnek: Hayvan sınıfında sesCikar() metodu "Ses yok" yazar. Kedi sınıfı bunu miras alır ama işine yaramaz. sesCikar() metodunu Override edip "Miyav" yazdırır.
+[Soru 21 & 26] super vs this:
+| Anahtar Kelime | Amaç | Örnek |
+|---|---|---|
+| this | Şu anki nesneyi işaret eder. | this.hiz = hiz; (Değişken karışıklığını önler) |
+| this() | Aynı sınıftaki başka bir constructor'ı çağırır. | this("Beyaz", 0); |
+| super | Üst sınıfın üyelerine erişir. | super.yas veya super.kos() |
+| super() | Üst sınıfın constructor'ını çağırır. | super(isim); (İlk satırda olmak zorunda!) |
+Kodla Görselleştirme:
+class UstSinif {
+    public UstSinif() {
+        System.out.println("1. Dedem doğdu (Üst Sınıf Constructor)");
+    }
+}
+
+class AltSinif extends UstSinif {
+    public AltSinif() {
+        // Burada gizli bir super(); vardır.
+        System.out.println("2. Ben doğdum (Alt Sınıf Constructor)");
+    }
+}
+// Çıktı:
+// 1. Dedem doğdu
+// 2. Ben doğdum
+
+3. BÖLÜM: Encapsulation (Kapsülleme) ve Güvenlik
+(Kapsanan Sorular: 32, 34, 36, 37, 40)
+[Soru 32 & 33] Encapsulation vs Information Hiding:
+ * Information Hiding (Bilgi Gizleme): Veriyi (private int yas) dış dünyadan saklama prensibidir. Amaç kaza ile bozulmasını önlemektir.
+ * Encapsulation (Kapsülleme): Bu gizlenen veriyi ve onu işleyen metotları (getter/setter) tek bir paket (sınıf) içinde bir arada tutmaktır. Kapsülleme, bilgi gizlemeyi uygulama yöntemidir.
+[Soru 36] setAge() metodunda negatif değer kontrolü:
+Bu soru kod yazdırır.
+private int yas;
+
+public void setAge(int yas) {
+    // KORUMA MEKANİZMASI (Validation Logic)
+    if (yas < 0) {
+        System.out.println("Hata: Yaş 0'dan küçük olamaz! Varsayılan 0 atandı.");
+        this.yas = 0;
+    } else if (yas > 150) {
+        System.out.println("Hata: Bu kadar yaşlı olamazsınız.");
+    } else {
+        this.yas = yas; // Sadece geçerliyse ata
+    }
+}
+
+[Soru 40] Setter olmadan Encapsulation:
+Eğer bir sınıfta sadece getter yazıp setter yazmazsanız, o sınıf Immutable (Değiştirilemez) olur. Nesne bir kere oluşturulur (constructor ile) ve verisi bir daha asla değiştirilemez. (Örn: String sınıfı).
+4. BÖLÜM: Statik, Metotlar ve Bellek Yönetimi
+(Kapsanan Sorular: 48, 49, 50, 51, 56)
+Bu kısım senin gibi mühendislik öğrencileri için kritik. Bellek yönetimi (Stack/Heap) burada devreye girer.
+[Soru 48 & 56] Static Nedir? Neden Nesneye Bağlı Değildir?
+ * Static elemanlar nesneye (Heap belleğe) değil, sınıfa (Metaspace/PermGen belleğe) aittir.
+ * Senaryo: Math.sqrt(25) hesaplamak için bir Math nesnesi yaratmaya (new Math()) gerek yoktur. Karekök alma işlemi evrenseldir, nesnenin durumuna (rengine, yaşına) göre değişmez. Bu yüzden statiktir.
+[Soru 49] Neden Static Metot İçinden Non-Static Çağrılamaz?
+ * Sebep: "Olmayan şeyi çağıramazsın."
+ * Static metot, program başlar başlamaz belleğe yüklenir.
+ * Non-static (nesne metodu) ise ancak new yapıldığında belleğe gelir.
+ * Static metot çalıştığında, ortada henüz hiçbir nesne olmayabilir. Bu yüzden this anahtar kelimesi static içinde kullanılamaz.
+[Soru 50 & 51] Sınıf vs Nesne ve Bellek:
+Automobile ronsCar = new Automobile(2, 75);
+
+ * Automobile (Sınıf): Kodun kendisi. Sabit diskteki .class dosyası.
+ * new Automobile(...): Heap belleğinde ayrılan dinamik alan.
+ * ronsCar: Stack belleğinde duran ve Heap'teki o alanı gösteren bir referans (pointer/adres çubuğu).
+5. BÖLÜM: Pratik "Nasıl Yapılır?" İpuçları (Linux/Terminal Sever İçin)
+ * Paketler (Questions 43):
+   * Linux dosya sistemini düşün. /usr/bin/java gibi.
+   * Paketler dizinlerle (directory) birebir eşleşir.
+   * package com.okul.proje; dediğinde, derlenen kod (.class), projenin kök dizininde com/okul/proje/ klasörü altında olmak zorundadır. Yoksa Java ClassNotFoundException fırlatır.
+ * Derleyici Ne Yapar? (Question 42):
+   * Sen constructor yazmazsan, derleyici (javac) senin koduna gizlice şu satırları enjekte eder:
+     public SinifIsmi() {
+    super();
+}
+
+   * Ama sen herhangi bir (parametreli bile olsa) constructor yazarsan, derleyici "Tamam, kontrol sende" der ve bu varsayılan yapıcıyı eklemez.
+✅ Öğrenci İçin Kontrol Listesi (Sınavdan Önce)
+Şunları ezbere yazabiliyor musun?
+ * [ ] public class A extends B implements C, D (Syntax doğru mu?)
+ * [ ] super() constructor içinde ilk satırda mı?
+ * [ ] Interface içinde değişken tanımlarsan int x = 5; bunun aslında public static final int x = 5; olduğunu biliyor musun?
+ * [ ] Abstract sınıftan new yapılamayacağını biliyor musun?
+Bu çalışma kağıdıyla soruların %90'ını doğrudan kodlayarak cevaplayabilirsin. Başka bir bölümü (örneğin Method Overloading detayları) açmamı ister misin?
 
 ### 🎯 Abstract Class (Soyut Sınıf) Derinlemesine Analiz
 Kaynak: [5], [6], [7], [8]
