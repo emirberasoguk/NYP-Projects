@@ -27,6 +27,3 @@ Bir restoranın menü ve sipariş süreçlerini yöneten sistem.
 ## 🛠️ Teknolojiler
 *   **Dil:** Java
 *   **Kavramlar:** Inheritance (Kalıtım), Interface (Arayüz), Polymorphism (Çok Biçimlilik), Encapsulation (Kapsülleme).
-
-## 🏷️ Etiketler (Tags)
-`java`, `object-oriented-programming`, `oop`, `nyp`, `university-projects`, `student-work`, `software-engineering`, `java-application`
