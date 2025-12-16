@@ -1,9 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
+// Kalıtım + Interface kullanımı
 public class PodcastContent extends Content implements Rateable, AdSupported {
     private boolean live;
-    private int totalAds; // Storing the ad count passed or managed
+    private int totalAds;
     private List<Integer> ratings;
 
     public PodcastContent(String id, String title, int durationMin, double basePrice, boolean live, int totalAds) {

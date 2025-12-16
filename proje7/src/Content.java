@@ -1,4 +1,5 @@
 public abstract class Content {
+    // Ortak özellikler (Kalıtım)
     protected String id;
     protected String title;
     protected int durationMin;
@@ -23,6 +24,7 @@ public abstract class Content {
         return basePrice == 0;
     }
 
+    // Alt sınıflar bunları ezmeli (Abstraction)
     public abstract double finalPrice();
     public abstract String type();
 }

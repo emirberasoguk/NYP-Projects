@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ContentManager {
+    // Polymorphism: Her tür içeriği tutar
     private List<Content> contents;
+    
+    // Strateji deseni: Politika değişebilir
     private PricingPolicy pricingPolicy;
 
     public ContentManager() {
         this.contents = new ArrayList<>();
-        this.pricingPolicy = new NoDiscountPolicy(); // Default policy
+        this.pricingPolicy = new NoDiscountPolicy();
     }
 
     public void setPricingPolicy(PricingPolicy p) {
@@ -28,6 +31,7 @@ public class ContentManager {
 
     public void printAll() {
         for (Content c : contents) {
+            // Polymorphism: Çalışma zamanında türe göre davranır
             System.out.println(c.type() + " | " + c.getInfo() + " | Price: " + pricingPolicy.apply(c));
         }
     }
@@ -43,6 +47,7 @@ public class ContentManager {
     public void printTopRated(int n) {
         List<Rateable> rateables = new ArrayList<>();
         for (Content c : contents) {
+            // Interface yeteneği kontrolü
             if (c instanceof Rateable) {
                 rateables.add((Rateable) c);
             }
@@ -54,8 +59,7 @@ public class ContentManager {
         for (Rateable r : rateables) {
             if (count >= n) break;
             System.out.println("Rating: " + r.averageRating() + " | Count: " + r.ratingCount()); 
-            // Ideally we'd print more info, but Rateable interface doesn't enforce getInfo/Title. 
-            // We can cast back to Content to print details if needed, which is safe here as all are Content.
+            
             if (r instanceof Content) {
                 System.out.println(((Content) r).getInfo());
             }
@@ -84,7 +88,6 @@ public class ContentManager {
         }
     }
     
-    // Helper to get raw list if needed for Main class tasks, or Main can use Manager directly.
     public List<Content> getContents() {
         return contents;
     }

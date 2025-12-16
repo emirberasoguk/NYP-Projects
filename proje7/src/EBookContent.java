@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+// Kalıtım + Interface kullanımı
 public class EBookContent extends Content implements Rateable, Downloadable {
     private int pageCount;
     private List<Integer> ratings;
@@ -10,7 +11,6 @@ public class EBookContent extends Content implements Rateable, Downloadable {
         this.pageCount = pageCount;
         this.ratings = new ArrayList<>();
         
-        // Rule: if 300+ pages, add 1.5 to basePrice
         if (this.pageCount > 300) {
             this.basePrice += 1.5;
         }

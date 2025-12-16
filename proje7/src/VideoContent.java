@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+// Kalıtım + Interface kullanımı
 public class VideoContent extends Content implements Rateable, Downloadable {
     private int quality;
     private List<Integer> ratings;
@@ -45,13 +46,13 @@ public class VideoContent extends Content implements Rateable, Downloadable {
     public double downloadSizeMB() {
         double size = durationMin * 15;
         if (quality == 1080) {
-            size *= 1.30; // increase by 30%
+            size *= 1.30;
         }
         return size;
     }
 
     @Override
     public boolean isDownloadable() {
-        return isFree(); // Free content is downloadable, paid is not
+        return isFree();
     }
 }
